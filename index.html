@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="bn">
+ <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#e11d48">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <title>LoveChat</title>
+  <style>
+:root{--p:#e11d48;--p2:#fb7185;--bg:#fff1f2;--tx:#2b1b22;--mu:#8a6f79;--bd:#f6d5dc}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font:15px/1.4 system-ui,-apple-system,"Noto Sans Bengali","Segoe UI",sans-serif;background:var(--bg);color:var(--tx)}
+button,input,select,textarea{font:inherit;color:inherit}
+input,select,textarea{width:100%;padding:12px 14px;border:1px solid var(--bd);border-radius:12px;background:#fff;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--p)}
+.screen{display:none;height:100dvh;flex-direction:column;position:relative}
+.screen.on{display:flex}
+.center{align-items:center;gap:12px;padding:24px;text-align:center;overflow:auto}
+.center>*{width:100%;max-width:360px;flex:none}
+h1{color:var(--p)}
+.mu{color:var(--mu);font-size:13px}
+.btn{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border:0;border-radius:12px;padding:12px 16px;font-weight:600;cursor:pointer}
+.btn:disabled{opacity:.45}
+.btn.ghost{background:#fff;color:var(--p);border:1px solid var(--p)}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.chk{display:flex;gap:8px;text-align:left;font-size:14px;align-items:flex-start}
+.chk input{width:20px;height:20px;margin-top:2px;flex:none}
+header{display:flex;align-items:center;gap:6px;padding:10px 12px;padding-top:calc(10px + env(safe-area-inset-top));background:linear-gradient(135deg,var(--p),var(--p2));color:#fff}
+header b{font-size:17px}
+.sp{flex:1}
+.grow{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.2}
+.grow small{opacity:.9}
+.ib{background:rgba(255,255,255,.2);border:0;border-radius:10px;width:38px;height:38px;font-size:18px;color:#fff;cursor:pointer;flex:none}
+.tabs{display:flex;background:#fff;border-bottom:1px solid var(--bd)}
+.tabs button{flex:1;padding:11px 4px;background:none;border:0;border-bottom:3px solid transparent;color:var(--mu);font-weight:600}
+.tabs button.on{color:var(--p);border-color:var(--p)}
+#badge{display:none;background:var(--p);color:#fff;border-radius:9px;font-size:11px;padding:1px 6px;margin-left:4px;font-style:normal}
+#st{font-size:12px;color:var(--mu);padding:6px 14px 0}
+.filters,.addrow{display:flex;gap:8px;padding:8px 12px}
+.addrow{display:none}
+#list{flex:1;overflow:auto;padding:0 12px 16px;display:flex;flex-direction:column;gap:8px}
+.card{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--bd);border-radius:14px;padding:10px 12px}
+.card .info{flex:1;min-width:0}
+.card .info b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .info small{color:var(--mu);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .info small.unr{color:var(--tx);font-weight:700}
+.av{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--p2),var(--p));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:19px;position:relative;flex:none}
+.av.on::after{content:"";position:absolute;right:0;bottom:0;width:12px;height:12px;border-radius:50%;background:#22c55e;border:2px solid #fff}
+.sm{background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:7px 10px;cursor:pointer;flex:none}
+.empty{text-align:center;color:var(--mu);padding:40px 10px}
+#msgs{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:6px}
+.msg{max-width:78%;padding:8px 12px;border-radius:16px;word-wrap:break-word;white-space:pre-wrap}
+.msg small{display:block;font-size:10px;opacity:.7;text-align:right;margin-top:2px}
+.msg.me{align-self:flex-end;background:var(--p);color:#fff;border-bottom-right-radius:4px}
+.msg.th{align-self:flex-start;background:#fff;border:1px solid var(--bd);border-bottom-left-radius:4px}
+#chatForm{display:flex;gap:8px;padding:8px 10px;padding-bottom:calc(8px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--bd)}
+#menu{display:none;position:absolute;right:10px;top:58px;background:#fff;color:var(--tx);border:1px solid var(--bd);border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,.15);z-index:5;overflow:hidden}
+#menu.on{display:block}
+#menu button{display:block;width:100%;padding:12px 18px;background:none;border:0;text-align:left}
+.ov{display:none;position:fixed;inset:0;z-index:20;background:#000}
+.ov.on{display:block}
+#rv{width:100%;height:100%;object-fit:cover;background:#111}
+#lv{position:absolute;right:12px;top:calc(12px + env(safe-area-inset-top));width:96px;height:128px;object-fit:cover;border-radius:12px;background:#222;border:2px solid #fff;transform:scaleX(-1)}
+#cinfo{position:absolute;left:0;right:0;top:calc(14px + env(safe-area-inset-top));text-align:center;color:#fff;font-weight:600;text-shadow:0 1px 4px #000}
+.ctl{position:absolute;left:0;right:0;bottom:calc(28px + env(safe-area-inset-bottom));display:flex;justify-content:center;gap:18px}
+.ctl button{width:58px;height:58px;border-radius:50%;border:0;font-size:24px;background:rgba(255,255,255,.25);color:#fff}
+.ctl button.off{background:#fff;color:#000}
+.ctl .red{background:#ef4444}
+.ov.mid{background:rgba(0,0,0,.6)}
+.ov.mid.on{display:flex;align-items:center;justify-content:center}
+.box{background:#fff;border-radius:18px;padding:22px;text-align:center;display:flex;flex-direction:column;gap:10px;min-width:250px}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#2b1b22;color:#fff;padding:10px 16px;border-radius:20px;max-width:90%;display:none;z-index:50;font-size:14px}
+#toast.on{display:block}
+</style>
+ </head>
+ <body>
+  <!-- প্রোফাইল / সেটআপ -->
+  <section id="sSetup" class="screen on center">
+   <h1 id="setupTitle">💕 LoveChat</h1>
+   <p class="mu" id="setupSub">অ্যাকাউন্ট বা পাসওয়ার্ড লাগবে না। শুধু নাম আর দেশ দিন।</p>
+   <label class="chk" id="ageRow"><input type="checkbox" id="age"> <span>আমার বয়স ১৮ বছর বা তার বেশি, এবং আমি সবার সাথে ভদ্র আচরণ করব</span></label> <input id="name" placeholder="আপনার নাম" maxlength="40"> <select id="country"></select> <textarea id="bio" rows="2" maxlength="160" placeholder="নিজের সম্পর্কে ছোট করে লিখুন (ঐচ্ছিক)"></textarea> <label class="chk"><input type="checkbox" id="hide"> <span>অনলাইন তালিকায় আমাকে দেখাবেন না (শুধু আমার লিংক/ID যারা জানে তারা চ্যাট করতে পারবে)</span></label> <input id="oldId" placeholder="আগের ID থাকলে এখানে দিন (ঐচ্ছিক)">
+   <div id="meBox" style="display:none;text-align:left">
+    <div class="mu">আপনার ID (ফ্রেন্ডদের দিন):</div>
+    <input id="myId" readonly>
+    <div class="row" style="margin-top:8px">
+     <button id="bCopy" class="btn ghost">🔗 কপি</button>
+     <button id="bShare" class="btn ghost">📤 শেয়ার</button>
+    </div>
+   </div>
+   <button id="bSave" class="btn" disabled>সেভ করুন</button>
+   <button id="bBackMe" class="btn ghost" style="display:none">← ফিরে যান</button>
+   <button id="bReset" class="btn ghost" style="display:none">🗑 সব ডেটা মুছুন</button>
+  </section>
+  <!-- মূল স্ক্রিন -->
+  <section id="sMain" class="screen">
+   <header>
+    <b>💕 LoveChat</b><span class="sp"></span>
+    <button id="bProf" class="ib" title="প্রোফাইল ও আমার লিংক">👤</button>
+   </header>
+   <div class="tabs">
+    <button data-t="chat">💬 চ্যাট<i id="badge"></i></button>
+    <button data-t="online" class="on">🌍 অনলাইন</button>
+    <button data-t="fr">❤️ ফ্রেন্ড</button>
+   </div>
+   <div id="st"></div>
+   <div class="filters" id="filters">
+    <input id="q" placeholder="নাম খুঁজুন"> <select id="cf"><option value="">সব দেশ</option></select>
+   </div>
+   <div class="addrow" id="addRow">
+    <input id="addId" placeholder="ফ্রেন্ডের ID বা লিংক">
+    <button id="bAdd" class="btn">➕</button>
+   </div>
+   <div id="list"></div>
+  </section>
+  <!-- চ্যাট -->
+  <section id="sChat" class="screen">
+   <header>
+    <button id="bBack" class="ib">←</button>
+    <div class="grow">
+     <b id="cName"></b><small id="cSub"></small>
+    </div>
+    <button id="bVoice" class="ib" title="ভয়েস কল">📞</button>
+    <button id="bVideo" class="ib" title="ভিডিও কল">📹</button>
+    <button id="bMore" class="ib">⋮</button>
+   </header>
+   <div id="menu">
+    <button id="bBlock">🚫 ব্লক করুন</button>
+    <button id="bClear">🧹 চ্যাট মুছুন</button>
+   </div>
+   <div id="msgs"></div>
+   <form id="chatForm">
+    <input id="txt" autocomplete="off" placeholder="মেসেজ লিখুন…" maxlength="1000">
+    <button class="btn">➤</button>
+   </form>
+  </section>
+  <!-- কল -->
+  <div id="call" class="ov">
+   <video id="rv" autoplay playsinline></video>
+   <video id="lv" autoplay playsinline muted></video>
+   <div id="cinfo"></div>
+   <div class="ctl">
+    <button id="bMic">🎤</button>
+    <button id="bCam">📷</button>
+    <button id="bEnd" class="red">📵</button>
+   </div>
+  </div>
+  <div id="inc" class="ov mid">
+   <div class="box">
+    <div style="font-size:42px">📞</div>
+    <b id="incName"></b>
+    <div class="mu">আপনাকে কল করছে…</div>
+    <div class="row">
+     <button id="bRej" class="btn ghost">❌ কাটুন</button>
+     <button id="bAns" class="btn">✅ ধরুন</button>
+    </div>
+   </div>
+  </div>
+  <div id="toast"></div>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mqtt@5/dist/mqtt.min.js"></script>
+  <script>
+'use strict';
+/* ====== সেটিংস ====== */
+// অনলাইন তালিকার "রুম"। সবাই একই রুমে থাকলে একে অপরকে দেখতে পাবে। চাইলে নিজের মতো বদলাতে পারেন।
+const ROOM = 'lvch-k29x7q';
+// ফ্রি পাবলিক MQTT সার্ভার (একটা না চললে পরেরটা চেষ্টা করবে)
+const BROKERS = ['wss://broker.emqx.io:8084/mqtt', 'wss://broker.hivemq.com:8884/mqtt', 'wss://test.mosquitto.org:8081'];
+// কল না লাগলে এখানে TURN সার্ভার বসাতে পারেন। উদাহরণ: [{urls:'turn:host:3478',username:'u',credential:'p'}]
+const EXTRA_ICE = [];
+
+/* ====== সাধারণ ফাংশন ====== */
+const $ = s => document.querySelector(s);
+const show = id => { document.querySelectorAll('.screen').forEach(e => e.classList.remove('on')); $(id).classList.add('on'); };
+function toast(t) { const e = $('#toast'); e.textContent = t; e.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove('on'), 3500); }
+const jget = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
+const jset = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+const el = (cls, tag) => { const e = document.createElement(tag || 'div'); if (cls) e.className = cls; return e; };
+function btn(t, fn) { const b = el('sm', 'button'); b.textContent = t; b.onclick = e => { e.stopPropagation(); fn(); }; return b; }
+const ID_RE = /^lc[a-z0-9]{12}$/;
+const newId = () => 'lc' + Array.from(crypto.getRandomValues(new Uint8Array(12)), b => 'abcdefghijklmnopqrstuvwxyz0123456789'[b % 36]).join('');
+
+/* ====== দেশের তালিকা ====== */
+const SKIP = new Set(['AC','CP','DG','EA','EU','EZ','IC','TA','UN','QO','ZZ']);
+const flag = c => c && /^[A-Z]{2}$/.test(c) ? String.fromCodePoint(...[...c].map(x => 127397 + x.charCodeAt(0))) : '';
+let dn = null; try { dn = new Intl.DisplayNames(['bn', 'en'], { type: 'region' }); } catch (e) {}
+const countries = [];
+for (let a = 65; a <= 90; a++) for (let b = 65; b <= 90; b++) {
+  const c = String.fromCharCode(a, b); let n = null;
+  try { n = dn && dn.of(c); } catch (e) {}
+  if (n && n !== c && !SKIP.has(c)) countries.push([c, n]);
+}
+countries.sort((x, y) => x[1].localeCompare(y[1]));
+const cname = c => { const f = countries.find(x => x[0] === c); return f ? f[1] : (c || ''); };
+countries.forEach(([c, n]) => { $('#cf').add(new Option(flag(c) + ' ' + n, c)); $('#country').add(new Option(flag(c) + ' ' + n, c)); });
+
+/* ====== অবস্থা (সব ডেটা শুধু এই ডিভাইসে থাকে) ====== */
+let me = jget('lc_me', null);
+let contacts = jget('lc_contacts', {});
+let blocked = new Set(jget('lc_blocked', []));
+let presence = {}, peer = null, mq = null, mqState = 0, started = false, pendingAdd = null;
+let tab = 'online', chatWith = null, cur = null, pending = null, lstream = null, ringT = null;
+const conns = {}, waiters = {};
+const saveContacts = () => jset('lc_contacts', contacts);
+const hist = id => jget('lc_chat_' + id, []);
+const pushMsg = (id, m) => jset('lc_chat_' + id, hist(id).concat([m]).slice(-200));
+
+function ensureContact(id, info) {
+  const c = contacts[id] || (contacts[id] = { id, name: 'ইউজার', country: '', fr: false, unread: 0 });
+  if (info) {
+    if (info.name) c.name = String(info.name).slice(0, 40);
+    if (/^[A-Z]{2}$/.test(info.country || '')) c.country = info.country;
+  }
+  return c;
+}
+function infoOf(id) {
+  const p = presence[id], c = contacts[id] || {};
+  return { id, name: (p && p.name) || c.name || 'ইউজার', country: (p && p.country) || c.country || '', bio: (p && p.bio) || '', online: !!p };
+}
+
+/* ====== শুরু ====== */
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+function readHash() {
+  const m = location.hash.match(/add=(lc[a-z0-9]{12})/);
+  if (m) { pendingAdd = m[1]; history.replaceState(null, '', location.pathname + location.search); }
+}
+readHash();
+window.addEventListener('hashchange', () => { readHash(); applyPendingAdd(); });
+function applyPendingAdd() {
+  if (pendingAdd && me && pendingAdd !== me.id) { addFriend(pendingAdd); pendingAdd = null; }
+}
+if (!me) openSetup(); else { show('#sMain'); boot(); render(); }
+
+function boot() {
+  if (started) return;
+  started = true;
+  startPeer(); startMqtt(0);
+  setInterval(announce, 45000);
+  setInterval(prune, 20000);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    if (peer && peer.destroyed) startPeer(); else if (peer && peer.disconnected) { try { peer.reconnect(); } catch (e) {} }
+    announce();
+  });
+  applyPendingAdd();
+}
+
+/* ====== প্রোফাইল ====== */
+function openSetup() {
+  const has = !!me;
+  $('#setupTitle').textContent = has ? '👤 আমার প্রোফাইল' : '💕 LoveChat';
+  $('#setupSub').style.display = has ? 'none' : '';
+  $('#ageRow').style.display = has ? 'none' : '';
+  $('#oldId').style.display = has ? 'none' : '';
+  $('#meBox').style.display = has ? 'block' : 'none';
+  $('#bBackMe').style.display = has ? '' : 'none';
+  $('#bReset').style.display = has ? '' : 'none';
+  $('#bSave').disabled = !has && !$('#age').checked;
+  $('#name').value = has ? me.name : '';
+  $('#bio').value = has ? (me.bio || '') : '';
+  $('#hide').checked = has ? !!me.hide : false;
+  const loc = ((navigator.language || '').split('-')[1] || '').toUpperCase();
+  const pick = has ? me.country : loc;
+  if (countries.some(x => x[0] === pick)) $('#country').value = pick;
+  if (has) $('#myId').value = me.id;
+  show('#sSetup');
+}
+$('#age').onchange = () => { $('#bSave').disabled = !$('#age').checked; };
+$('#bProf').onclick = openSetup;
+$('#bBackMe').onclick = () => { show('#sMain'); render(); };
+$('#bSave').onclick = () => {
+  const name = $('#name').value.trim();
+  if (!name) return toast('নাম লিখুন');
+  if (!me) {
+    const old = $('#oldId').value.trim().toLowerCase();
+    me = { id: ID_RE.test(old) ? old : newId(), adult: true };
+  }
+  me.name = name.slice(0, 40); me.country = $('#country').value; me.bio = $('#bio').value.trim().slice(0, 160); me.hide = $('#hide').checked;
+  jset('lc_me', me);
+  show('#sMain'); boot(); announce(); setStatus(); render();
+};
+// ইনস্টল করা অ্যাপে (APK) ওয়েব লিংক কাজ করে না, তাই সেখানে ID শেয়ার হয়
+const IS_APP = location.hostname === 'localhost' || location.protocol === 'file:' || location.protocol === 'capacitor:';
+const myLink = () => location.origin + location.pathname + '#add=' + me.id;
+const shareText = () => IS_APP ? 'LoveChat-এ আমাকে ফ্রেন্ড অ্যাড করুন 💕\nআমার ID: ' + me.id : myLink();
+$('#bCopy').onclick = () => {
+  const u = shareText();
+  (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(() => toast(IS_APP ? 'ID কপি হয়েছে' : 'লিংক কপি হয়েছে')).catch(() => prompt('কপি করুন', u));
+};
+$('#bShare').onclick = () => {
+  const u = shareText();
+  if (navigator.share) navigator.share(IS_APP ? { title: 'LoveChat', text: u } : { title: 'LoveChat', text: 'আমার সাথে LoveChat-এ চ্যাট করুন 💕', url: u }).catch(() => {});
+  else $('#bCopy').click();
+};
+$('#bReset').onclick = () => { if (confirm('সব ডেটা (ID, ফ্রেন্ড, চ্যাট) এই ডিভাইস থেকে মুছে যাবে। নিশ্চিত?')) { try { localStorage.clear(); } catch (e) {} location.reload(); } };
+
+/* ====== অনলাইন তালিকা (MQTT) ====== */
+function startMqtt(i) {
+  if (!window.mqtt || i >= BROKERS.length) { mqState = 2; setStatus(); return; }
+  let ok = false, moved = false;
+  const c = mqtt.connect(BROKERS[i], {
+    clientId: 'lc_' + me.id + '_' + Math.random().toString(16).slice(2, 6),
+    keepalive: 30, reconnectPeriod: 0, connectTimeout: 8000, clean: true,
+    will: { topic: ROOM + '/p/' + me.id, payload: '', retain: true, qos: 0 }
+  });
+  c.on('connect', () => {
+    ok = true; mq = c; mqState = 1; c.options.reconnectPeriod = 4000;
+    c.subscribe(ROOM + '/p/+'); announce(); setStatus();
+  });
+  c.on('message', (t, p) => onPresence(t, p));
+  c.on('error', () => {});
+  c.on('close', () => {
+    if (!ok) { if (!moved) { moved = true; try { c.end(true); } catch (e) {} startMqtt(i + 1); } }
+    else { mqState = 0; setStatus(); }
+  });
+}
+function announce() {
+  if (!mq || !mq.connected || !me) return;
+  const payload = me.hide ? '' : JSON.stringify({ id: me.id, name: me.name, country: me.country, bio: me.bio || '' });
+  mq.publish(ROOM + '/p/' + me.id, payload, { retain: true, qos: 0 });
+}
+function onPresence(topic, payload) {
+  const id = topic.split('/').pop();
+  if (!ID_RE.test(id) || (me && id === me.id)) return;
+  if (!payload || !payload.length) { delete presence[id]; setStatus(); renderSoon(); return; }
+  let p; try { p = JSON.parse(payload.toString()); } catch (e) { return; }
+  if (!p || p.id !== id) return;
+  presence[id] = { id, name: String(p.name || '').slice(0, 40), country: /^[A-Z]{2}$/.test(p.country) ? p.country : '', bio: String(p.bio || '').slice(0, 160), seen: Date.now() };
+  if (contacts[id]) { ensureContact(id, presence[id]); saveContacts(); }
+  setStatus(); renderSoon();
+}
+function prune() {
+  let ch = false;
+  for (const id in presence) if (Date.now() - presence[id].seen > 100000) { delete presence[id]; ch = true; }
+  if (ch) { setStatus(); renderSoon(); }
+}
+function setStatus() {
+  const n = Object.keys(presence).filter(i => !blocked.has(i)).length;
+  $('#st').textContent = mqState === 1 ? '🟢 এখন অনলাইনে: ' + n + ' জন' : mqState === 2 ? '🔴 অনলাইন তালিকা পাওয়া যাচ্ছে না। ID/লিংক দিয়ে ফ্রেন্ড অ্যাড করে চ্যাট করতে পারবেন।' : '⚪ অনলাইন তালিকার সাথে সংযোগ হচ্ছে…';
+}
+
+/* ====== তালিকা দেখানো ====== */
+let rT = null;
+const renderSoon = () => { clearTimeout(rT); rT = setTimeout(render, 250); };
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
+  tab = b.dataset.t;
+  document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x === b));
+  $('#filters').style.display = tab === 'online' ? 'flex' : 'none';
+  $('#addRow').style.display = tab === 'fr' ? 'flex' : 'none';
+  render();
+});
+$('#q').oninput = render; $('#cf').onchange = render;
+
+function updBadge() {
+  const n = Object.values(contacts).reduce((s, c) => s + (blocked.has(c.id) ? 0 : (c.unread || 0)), 0);
+  const b = $('#badge'); b.textContent = n; b.style.display = n ? 'inline' : 'none';
+}
+function render() {
+  if (!me || !$('#sMain').classList.contains('on')) return;
+  updBadge();
+  let items = [];
+  if (tab === 'online') {
+    const q = $('#q').value.trim().toLowerCase(), cf = $('#cf').value;
+    items = Object.values(presence).filter(p => !blocked.has(p.id) && (!q || p.name.toLowerCase().includes(q)) && (!cf || p.country === cf))
+      .sort((a, b) => a.name.localeCompare(b.name)).map(p => infoOf(p.id));
+  } else if (tab === 'chat') {
+    items = Object.values(contacts).filter(c => c.last && !blocked.has(c.id)).sort((a, b) => (b.ts || 0) - (a.ts || 0))
+      .map(c => Object.assign(infoOf(c.id), { last: c.last, from: c.from, unread: c.unread || 0 }));
+  } else {
+    items = Object.values(contacts).filter(c => c.fr && !blocked.has(c.id)).map(c => infoOf(c.id)).sort((a, b) => b.online - a.online);
+  }
+  const box = $('#list'); box.innerHTML = '';
+  if (!items.length) {
+    const e = el('empty');
+    e.textContent = tab === 'chat' ? 'এখনও কোনো চ্যাট নেই। "অনলাইন" ট্যাব থেকে কাউকে মেসেজ দিন 💌'
+      : tab === 'fr' ? 'ফ্রেন্ড লিস্ট খালি। ফ্রেন্ডের ID বা লিংক দিয়ে অ্যাড করুন, অথবা উপরের 👤 থেকে নিজের লিংক শেয়ার করুন।'
+      : mqState === 1 ? 'এখন কেউ অনলাইনে নেই, অথবা ফিল্টারে কাউকে পাওয়া যায়নি।' : 'অনলাইন তালিকা লোড হচ্ছে…';
+    box.appendChild(e); return;
+  }
+  items.forEach(u => box.appendChild(card(u)));
+}
+function card(u) {
+  const c = el('card'), av = el('av'), info = el('info'), n = el('', 'b'), s = el('', 'small');
+  av.textContent = (u.name || '?')[0].toUpperCase(); if (u.online) av.classList.add('on');
+  n.textContent = u.name;
+  if (tab === 'chat') { s.textContent = (u.from === 'me' ? 'আপনি: ' : '') + u.last; if (u.unread) s.classList.add('unr'); }
+  else s.textContent = (u.country ? flag(u.country) + ' ' + cname(u.country) : '') + (u.bio ? ' · ' + u.bio : '');
+  info.append(n, s); c.append(av, info);
+  if (tab === 'chat') c.onclick = () => openChat(u.id);
+  else {
+    const fr = contacts[u.id] && contacts[u.id].fr;
+    c.append(btn(fr ? '✓' : '➕', () => {
+      if (!fr) addFriend(u.id);
+      else if (tab === 'fr' && confirm('ফ্রেন্ড লিস্ট থেকে সরাবেন?')) { contacts[u.id].fr = false; saveContacts(); render(); }
+    }), btn('💬', () => openChat(u.id)));
+  }
+  return c;
+}
+function addFriend(id) {
+  const c = ensureContact(id, presence[id]); c.fr = true; saveContacts();
+  toast('ফ্রেন্ড যোগ হয়েছে ❤️'); render();
+}
+$('#bAdd').onclick = () => {
+  const m = $('#addId').value.trim().toLowerCase().match(/lc[a-z0-9]{12}/);
+  if (!m || m[0] === me.id) return toast('সঠিক ID বা লিংক দিন');
+  addFriend(m[0]); $('#addId').value = '';
+};
+
+/* ====== চ্যাট (সরাসরি ডিভাইস থেকে ডিভাইসে, PeerJS) ====== */
+function startPeer() {
+  const opts = EXTRA_ICE.length ? { config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }].concat(EXTRA_ICE) } } : {};
+  peer = new Peer(me.id, opts);
+  peer.on('connection', c => { if (blocked.has(c.peer)) { c.close(); return; } setupConn(c); });
+  peer.on('call', onIncoming);
+  peer.on('disconnected', () => { try { peer.reconnect(); } catch (e) {} });
+  peer.on('error', e => {
+    if (e.type === 'unavailable-id') toast('অ্যাপটি অন্য ট্যাব বা ডিভাইসে চালু আছে');
+    else if (e.type === 'peer-unavailable') {
+      const m = /peer (\S+)/.exec(e.message || '');
+      if (m && waiters[m[1]]) waiters[m[1]](new Error('offline'));
+      if (cur && !cur._got) { toast('ইউজার এখন অনলাইনে নেই'); endCall(); }
+    } else console.log(e);
+  });
+}
+function setupConn(c) {
+  conns[c.peer] = c;
+  c.on('data', d => onData(c, d));
+  c.on('close', () => { if (conns[c.peer] === c) delete conns[c.peer]; });
+  c.on('error', () => {});
+}
+function getConn(id) {
+  return new Promise((res, rej) => {
+    const old = conns[id]; if (old && old.open) return res(old);
+    if (!peer || peer.destroyed) return rej(new Error('no peer'));
+    const nc = peer.connect(id, { reliable: true });
+    setupConn(nc);
+    const done = () => { clearTimeout(to); delete waiters[id]; };
+    const to = setTimeout(() => { done(); rej(new Error('timeout')); }, 8000);
+    waiters[id] = e => { done(); rej(e); };
+    nc.on('open', () => { done(); res(nc); });
+    nc.on('error', e => { done(); rej(e); });
+  });
+}
+function onData(c, d) {
+  const id = c.peer;
+  if (blocked.has(id) || !d || d.type !== 'msg' || typeof d.text !== 'string') return;
+  const t = d.text.slice(0, 1000), ct = ensureContact(id, d);
+  pushMsg(id, { f: 'th', t, ts: Date.now() });
+  ct.last = t; ct.ts = Date.now(); ct.from = 'th';
+  const inThis = chatWith === id && $('#sChat').classList.contains('on');
+  if (!inThis) { ct.unread = (ct.unread || 0) + 1; toast('💬 ' + ct.name + ': ' + t.slice(0, 40)); }
+  saveContacts(); updBadge();
+  if (inThis) drawMsgs(); else render();
+}
+function openChat(id) {
+  const c = ensureContact(id, presence[id]); c.unread = 0; saveContacts();
+  chatWith = id; const u = infoOf(id);
+  $('#cName').textContent = u.name;
+  $('#cSub').textContent = (u.country ? flag(u.country) + ' ' + cname(u.country) + ' · ' : '') + (u.online ? '🟢 অনলাইন' : 'অফলাইন হতে পারে');
+  $('#menu').classList.remove('on'); drawMsgs(); show('#sChat'); updBadge();
+}
+function drawMsgs() {
+  const box = $('#msgs'); box.innerHTML = '';
+  hist(chatWith).forEach(m => {
+    const b = el('msg ' + (m.f === 'me' ? 'me' : 'th')); b.textContent = m.t;
+    const t = el('', 'small'); t.textContent = new Date(m.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    b.appendChild(t); box.appendChild(b);
+  });
+  box.scrollTop = box.scrollHeight;
+}
+$('#bBack').onclick = () => { chatWith = null; show('#sMain'); render(); };
+$('#chatForm').onsubmit = async e => {
+  e.preventDefault();
+  const t = $('#txt').value.trim(); if (!t || !chatWith) return;
+  const id = chatWith;
+  try { const c = await getConn(id); c.send({ type: 'msg', text: t, name: me.name, country: me.country }); }
+  catch (err) { return toast('ইউজার এখন অনলাইনে নেই, মেসেজ যায়নি'); }
+  $('#txt').value = '';
+  pushMsg(id, { f: 'me', t, ts: Date.now() });
+  const c = ensureContact(id); c.last = t; c.ts = Date.now(); c.from = 'me'; saveContacts();
+  if (chatWith === id) drawMsgs();
+};
+$('#bMore').onclick = e => { e.stopPropagation(); $('#menu').classList.toggle('on'); };
+document.addEventListener('click', () => $('#menu').classList.remove('on'));
+$('#bBlock').onclick = () => {
+  if (!chatWith || !confirm(infoOf(chatWith).name + ' কে ব্লক করবেন?')) return;
+  blocked.add(chatWith); jset('lc_blocked', [...blocked]);
+  if (conns[chatWith]) { try { conns[chatWith].close(); } catch (e) {} }
+  toast('ব্লক করা হয়েছে'); $('#bBack').click(); setStatus();
+};
+$('#bClear').onclick = () => {
+  if (!chatWith || !confirm('এই চ্যাটের সব মেসেজ মুছবেন?')) return;
+  jset('lc_chat_' + chatWith, []); const c = contacts[chatWith]; if (c) { delete c.last; saveContacts(); } drawMsgs();
+};
+
+/* ====== ভিডিও/ভয়েস কল ====== */
+const media = v => navigator.mediaDevices.getUserMedia({ audio: true, video: v ? { facingMode: 'user' } : false });
+async function startCall(id, video) {
+  if (cur || !peer) return;
+  if (!navigator.mediaDevices) return toast('এই ব্রাউজারে কল সাপোর্ট নেই (HTTPS লাগে)');
+  try { lstream = await media(video); } catch (e) { return toast('ক্যামেরা/মাইক্রোফোনের অনুমতি দিন'); }
+  const c = peer.call(id, lstream, { metadata: { name: me.name, video } });
+  bind(c, infoOf(id).name + ' কে কল করা হচ্ছে…');
+  ringT = setTimeout(() => { if (cur === c && !c._got) { toast('কেউ উত্তর দেননি'); endCall(); } }, 45000);
+}
+$('#bVideo').onclick = () => chatWith && startCall(chatWith, true);
+$('#bVoice').onclick = () => chatWith && startCall(chatWith, false);
+function bind(c, label) {
+  cur = c; $('#call').classList.add('on'); $('#cinfo').textContent = label || '';
+  $('#lv').srcObject = lstream;
+  const hasV = lstream.getVideoTracks().length > 0;
+  $('#lv').style.display = hasV ? '' : 'none'; $('#bCam').style.display = hasV ? '' : 'none';
+  $('#bMic').classList.remove('off'); $('#bCam').classList.remove('off');
+  c.on('stream', s => { c._got = 1; clearTimeout(ringT); $('#rv').srcObject = s; $('#cinfo').textContent = (c.metadata && c.metadata.name) || label.replace(' কে কল করা হচ্ছে…', ''); });
+  c.on('close', () => { if (cur === c) endCall(); });
+  c.on('error', () => { if (cur === c) endCall(); });
+}
+function endCall() {
+  clearTimeout(ringT);
+  if (cur) { const c = cur; cur = null; try { c.close(); } catch (e) {} }
+  if (lstream) { lstream.getTracks().forEach(t => t.stop()); lstream = null; }
+  $('#rv').srcObject = null; $('#lv').srcObject = null; $('#call').classList.remove('on');
+}
+function onIncoming(call) {
+  if (blocked.has(call.peer) || cur || pending) { call.close(); return; }
+  pending = call;
+  $('#incName').textContent = (call.metadata && call.metadata.name) || 'কেউ';
+  $('#inc').classList.add('on');
+  call.on('close', () => { if (pending === call) { pending = null; $('#inc').classList.remove('on'); } });
+}
+$('#bAns').onclick = async () => {
+  const c = pending; pending = null; $('#inc').classList.remove('on'); if (!c) return;
+  try { lstream = await media(!(c.metadata && c.metadata.video === false)); c.answer(lstream); bind(c, (c.metadata && c.metadata.name) || ''); }
+  catch (e) { toast('ক্যামেরা/মাইক্রোফোনের অনুমতি দিন'); try { c.close(); } catch (x) {} }
+};
+$('#bRej').onclick = () => { if (pending) { try { pending.close(); } catch (e) {} pending = null; } $('#inc').classList.remove('on'); };
+$('#bEnd').onclick = endCall;
+function toggle(kind, b) {
+  const t = lstream && (kind === 'a' ? lstream.getAudioTracks() : lstream.getVideoTracks())[0];
+  if (t) { t.enabled = !t.enabled; b.classList.toggle('off', !t.enabled); }
+}
+$('#bMic').onclick = e => toggle('a', e.currentTarget);
+$('#bCam').onclick = e => toggle('v', e.currentTarget);
+</script>
+ </body>
+     </html>
